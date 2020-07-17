@@ -9,6 +9,7 @@ import time
 
 class Onion:
     proc = None
+    default_socket = socket.socket
 
     def __init__(self):
         self.start_tor()
@@ -17,10 +18,14 @@ class Onion:
 
     def __del__(self):
         self.stop_tor()
+        self.remove_socks5()
 
     def set_socks5(self):
         socks.set_default_proxy(socks.PROXY_TYPE_SOCKS5, '127.0.0.1', 9050)
         socket.socket = socks.socksocket
+
+    def remove_socks5(self):
+        socket.socket = self.default_socket
 
     def start_tor(self):
         self.proc = subprocess.Popen('tor', stdout=subprocess.DEVNULL)
@@ -34,7 +39,7 @@ class Onion:
         time.sleep(5)
 
 
-class Request:
+class Client:
     onion = None
 
     def __init__(self, is_onion=False):
